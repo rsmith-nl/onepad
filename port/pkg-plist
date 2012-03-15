@@ -1,0 +1,4 @@
+%%PYTHON_SITELIBDIR%%/module.py
+%%PYTHON_SITELIBDIR%%/module.pyc
+%%PYTHON_SITELIBDIR%%/module.pyo
+bin/PROG

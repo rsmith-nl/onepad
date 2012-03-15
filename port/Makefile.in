@@ -1,0 +1,27 @@
+# New ports collection makefile for:    PROG
+# Date created:                         22 Dec 2011
+# Whom:                                 rsmith@xs4all.nl
+#
+# $FreeBSD:$
+
+PORTNAME=			PROG
+PORTVERSION=		UkZTVkVS
+CATEGORIES=			???
+USE_ZIP=			YES
+MASTER_SITES=		http://rsmith.home.xs4all.nl/software/
+
+MAINTAINER=			rsmith@xs4all.nl
+COMMENT=			???
+PKGNAMEPREFIX=		${PYTHON_PKGNAMEPREFIX}
+
+MAN1=				PROG.1
+NO_BUILD=			YES
+
+USE_PYTHON=			2.5+
+USE_PYDISTUTILS=	YES
+
+post-install:
+	@${INSTALL_MAN} ${WRKSRC}/PROG.1 ${MANPREFIX}/man/man1
+	@${MV} ${PREFIX}/bin/PROG.py ${PREFIX}/bin/PROG
+
+.include <bsd.port.mk>
