@@ -1,0 +1,14 @@
+*.pyc
+*.pyo
+*~
+backup-*.tar.gz
+build
+dist
+setup.py
+PROG
+PROG.1*
+tools/replace.sed
+MANIFEST
+port/work
+port/Makefile
+port/distinfo
