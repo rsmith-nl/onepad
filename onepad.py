@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 # Copyright © 2012 R.F. Smith <rsmith@xs4all.nl>. All rights reserved.
-# Time-stamp: <2012-03-16 23:12:17 rsmith>
+# Time-stamp: <2012-08-25 15:47:18 rsmith>
 # 
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -28,66 +28,93 @@
 
 import os
 
-def readb64(name):
-    '''Read data from the base64 encoded text file 'name'.'''
-    f = open(name, 'r') # Can raise IOError.
-    buf = f.read().translate(None, ' \t\n').decode('base64')
-    f.close()
+def _readb64(name):
+    '''Read data from the base64 encoded text file.
+
+    Arguments:
+    name -- name of the file to read the key from.
+    '''
+    with open(name, 'r') as f:
+        buf = f.read().translate(None, ' \t\n').decode('base64')
     return bytearray(buf)
 
-def writeb64(name, data):
-    '''Write 'data' to the file 'name' in base64 encoded text.'''
+def _writeb64(name, data):
+    '''Write data to the file name in base64 encoded text.
+
+    Arguments:
+    name -- name of the file to open
+    data -- string of data to write.
+    '''
     dl = len(data)
     if dl == 0:
-        raise IOError('Nothing to write.')
-    f = open(name, 'w+')
+        raise ValueError('Nothing to write.')
     segsz = 57
-    for i in range(0, dl, segsz):
-        f.write(str(data[i:i+segsz]).encode('base64'))
-    f.close()
-    
+    with open(name, 'w+') as f:
+        for i in range(0, dl, segsz):
+            f.write(str(data[i:i+segsz]).encode('base64'))
 
 class Key(object):
 
-    def __init__(self, name=None, size=None):
-        '''Read a key from a file 'name', or create a new one from os.urandom
-        that is 'size' bytes long.'''
-        self.data = bytearray()
-        if name:
-            self.date = readb64(name)
-            if len(self.data):
-                return
-        if size == None:
-            raise ValueError('No size given when creating a Key.')
-        if size < 0:
-            raise ValueError("Negative size given when creating a Key.")
-        self.data += os.urandom(size)
+    def __init__(self, arg):
+        '''Create a key. Key creation can happen in three ways.
+        (1) Create a random key by giving an integer argument.
+        (2) Read a key from a file by using a string argument.
+        (3) Copy an existing key by using an existing key argument.
+
+        Arguments:
+        arg -- integer size in bytes of the random key to create
+            -- or name of the file to read the file from
+            -- or existing key to copy
+        '''
+        if isinstance(arg, int):
+            if arg < 0:
+                raise ValueError("Negative size given when creating a Key.")
+            self.data = bytearray(os.urandom(arg))
+            return
+        if isinstance(arg, str):
+            self.data = _readb64(arg)
+            return
+        if isinstance(arg, Key):
+            self.data = arg.data[:]
+        else:
+            raise ValueError('The object to copy is not a Key.')
 
     def __len__(self):
         return len(self.data)
 
     def write(self, name):
-        '''Write the key to a file 'name' in base64 encoding.'''
-        writeb64(name, self.data)
+        '''Write the key to a file in base64 encoding.
+
+        Arguments:
+        name -- name of the file to create
+        '''
+        _writeb64(name, self.data)
 
     def crypt(self, message):
-        '''Encrypt or decrypt 'message'.'''
-        a = len(message)
-        rv = bytearray([p^q for p,q in zip(bytearray(message),self.data)])
-        if len(self.data) > a:
-            self.data = self.data[a:]
-        else:
-            self.data = bytearray()
-        return rv
+        '''Encrypt or decrypt a message.
 
+        Arguments:
+        message -- string to encrypt or decrypt.
+        '''
+        a = len(message)
+        if len(self.data) > a:
+            rv = bytearray([p^q for p,q in zip(bytearray(message),
+                                               self.data)])
+            self.data = self.data[a:]
+            return rv
+        else:
+            raise ValueError('Not enough key length to crypt the message.')
 
 # Built-in test.
 if __name__ == '__main__':
-    from copy import deepcopy
-    k = Key(None, 1024)
-    p = deepcopy(k)
+#    from copy import deepcopy
+    k = Key(1024)
+    p = Key(k)
     test = 'This is a test.'
+    print 'plaintext "{}"'.format(test)
     ciphertext = k.crypt(test)
+    pc = str(ciphertext).encode('base64')[:-1]
+    print 'ciphertext (base64) "{}"'.format(pc)
     copy  =  str(p.crypt(ciphertext))
     if copy == test:
         print "It works!"
