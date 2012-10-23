@@ -1,4 +1,12 @@
 #!/bin/sh
+# Script to be executed after a successfull commit.
+# $Date: 2012-10-21 14:17:40 +0200 $
+# 
+# Looks for files changed in the last commit, removes those files and checks
+# them out again to refresh the keywords. Keyword expansion only works should
+# in files that have the kw filter set in .gitattibutes.
 
-git --no-pager log -1 HEAD --pretty=format:"s|UkZTVkVS|%h|%n" >tools/replace.sed
-git --no-pager log -1 HEAD --pretty=format:"s|UkZTREFU|%ci|'"|sed -e "s/ .*/|/" >>tools/replace.sed
+FILES=`git diff-tree HEAD~1 HEAD --name-only -r`
+rm -f $FILES
+git checkout -f $FILES
+
