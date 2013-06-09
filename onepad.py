@@ -1,124 +1,90 @@
-#! /usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Copyright © 2012 R.F. Smith <rsmith@xs4all.nl>. All rights reserved.
-# Time-stamp: <2012-08-25 15:47:18 rsmith>
-# 
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions
-# are met:
-# 1. Redistributions of source code must retain the above copyright
-#    notice, this list of conditions and the following disclaimer.
-# 2. Redistributions in binary form must reproduce the above copyright
-#    notice, this list of conditions and the following disclaimer in the
-#    documentation and/or other materials provided with the distribution.
-# 
-# THIS SOFTWARE IS PROVIDED BY AUTHOR AND CONTRIBUTORS ``AS IS'' AND
-# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-# ARE DISCLAIMED.  IN NO EVENT SHALL AUTHOR OR CONTRIBUTORS BE LIABLE
-# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
-# OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
-# OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
-# SUCH DAMAGE.
+#
+# Author: R.F. Smith <rsmith@xs4all.nl>
+# $Date$
+#
+# To the extent possible under law, Roland Smith has waived all copyright and
+# related or neighboring rights to onepad.py. This work is published from the
+# Netherlands. See http://creativecommons.org/publicdomain/zero/1.0/
 
-"Module for handling one-time-pad keys"
+"""Uses a one time pad to encrypt or decrypt a file."""
 
 import os
+import sys
+import base64
+import lzma
 
-def _readb64(name):
-    '''Read data from the base64 encoded text file.
+def decode(data):
+    """Decode a keystring or an encrypted string.
+
+    :data: bytes to decode
+    :returns: the decoded input
+    """
+    data = data.replace(b' ', b'').replace(b'\n', b'')
+    return base64.b64decode(data)
+
+
+def encode(data, chunklen=6, linelen=78):
+    """Encode 
+
+    :data: string to be encoded
+    :chunklen: number of bytes in a chunk, defaults to 6
+    :linelen: length of a line, defaults to 78 characters
+    :returns: the base64 encoded data
+    """
+    length = len(data)
+    n = int(linelen//(4*chunklen/3))
+    chunks = [base64.b64encode(data[j:j+chunklen]).decode('ascii')
+              for j in range(0, length, chunklen)]
+    lines = [' '.join(chunks[i:i+n]) for i in range(0, len(chunks), n)]
+    return '\n'.join(lines)
+
+
+def main(argv):
+    """Main program.
 
     Arguments:
-    name -- name of the file to read the key from.
-    '''
-    with open(name, 'r') as f:
-        buf = f.read().translate(None, ' \t\n').decode('base64')
-    return bytearray(buf)
+    :argv: command line arguments
+    :returns: nothing 
+    """
+    if len(argv) == 1:
+        script = os.path.basename(argv[0])
+        print("Usage: {} (dec|enc) [datafile keyfile]".format(script))
+        sys.exit(0)
+    del argv[0] # delete the name of the script.
+    try:
+        action = argv[0]
+        if not action in ('enc', 'dec'):
+            raise ValueError
+        datafile = argv[1]
+        keyfile = argv[2]
+        ext = '.key'
+        if not keyfile.endswith(ext):
+            keyfile += ext
+    except IndexError:
+        print('Not enough arguments given.')
+        return
+    except ValueError:
+        print('Command must be either "enc" or "dec".')
+        return
+    with open(datafile, 'rb') as df:
+        data = df.read()
+    with open(keyfile, 'rb') as kf:
+        key = decode(kf.read())
+    if action == 'dec':
+        data = decode(data)
+    else: # encrypting
+        data = lzma.compress(data)
+    if len(data) > len(key):
+        print('ERROR: Message longer than the key.')
+        return
+    rv = bytes([i^j for i, j in zip(data, key)])
+    if action == 'enc':
+        rv = bytes(encode(rv), 'utf-8')
+    else: #decrypting
+        rv = lzma.decompress(rv)
+    print(rv.decode('utf-8'))
 
-def _writeb64(name, data):
-    '''Write data to the file name in base64 encoded text.
-
-    Arguments:
-    name -- name of the file to open
-    data -- string of data to write.
-    '''
-    dl = len(data)
-    if dl == 0:
-        raise ValueError('Nothing to write.')
-    segsz = 57
-    with open(name, 'w+') as f:
-        for i in range(0, dl, segsz):
-            f.write(str(data[i:i+segsz]).encode('base64'))
-
-class Key(object):
-
-    def __init__(self, arg):
-        '''Create a key. Key creation can happen in three ways.
-        (1) Create a random key by giving an integer argument.
-        (2) Read a key from a file by using a string argument.
-        (3) Copy an existing key by using an existing key argument.
-
-        Arguments:
-        arg -- integer size in bytes of the random key to create
-            -- or name of the file to read the file from
-            -- or existing key to copy
-        '''
-        if isinstance(arg, int):
-            if arg < 0:
-                raise ValueError("Negative size given when creating a Key.")
-            self.data = bytearray(os.urandom(arg))
-            return
-        if isinstance(arg, str):
-            self.data = _readb64(arg)
-            return
-        if isinstance(arg, Key):
-            self.data = arg.data[:]
-        else:
-            raise ValueError('The object to copy is not a Key.')
-
-    def __len__(self):
-        return len(self.data)
-
-    def write(self, name):
-        '''Write the key to a file in base64 encoding.
-
-        Arguments:
-        name -- name of the file to create
-        '''
-        _writeb64(name, self.data)
-
-    def crypt(self, message):
-        '''Encrypt or decrypt a message.
-
-        Arguments:
-        message -- string to encrypt or decrypt.
-        '''
-        a = len(message)
-        if len(self.data) > a:
-            rv = bytearray([p^q for p,q in zip(bytearray(message),
-                                               self.data)])
-            self.data = self.data[a:]
-            return rv
-        else:
-            raise ValueError('Not enough key length to crypt the message.')
-
-# Built-in test.
 if __name__ == '__main__':
-#    from copy import deepcopy
-    k = Key(1024)
-    p = Key(k)
-    test = 'This is a test.'
-    print 'plaintext "{}"'.format(test)
-    ciphertext = k.crypt(test)
-    pc = str(ciphertext).encode('base64')[:-1]
-    print 'ciphertext (base64) "{}"'.format(pc)
-    copy  =  str(p.crypt(ciphertext))
-    if copy == test:
-        print "It works!"
-    else:
-        print 'original: "{}"'.format(test)
-        print 'crypted: "{}"'.format(copy)
-
+    main(sys.argv)
