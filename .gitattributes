@@ -1,2 +1,2 @@
 *.py filter=kw
-*.1 filter=kw
+README.rst filter=kw
