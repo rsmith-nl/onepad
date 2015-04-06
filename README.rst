@@ -20,10 +20,10 @@ The onepad program reads a file and a key and then combines them using the
 exclusive-or (xor) operation. The resulting data is written to standard
 output.
 
-Key files and encrypted files are stored as base64 encoded text.    
+Key files and encrypted files are stored as base64 encoded text.
 
-Plaintext is compressed with LZMA before encryption. Cyphertext is likewise
-decopressed after decryption. 
+Plaintext is compressed with BZ2 before encryption. Cyphertext is likewise
+decompressed after decryption.
 
 Security
 ========

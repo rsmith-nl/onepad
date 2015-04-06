@@ -8,18 +8,22 @@
 # related or neighboring rights to genpad.py. This work is published from the
 # Netherlands. See http://creativecommons.org/publicdomain/zero/1.0/
 
-"""Generates a script one time pad."""
+"""Generates a one time pad."""
 
 import os
 import sys
 import base64
 
+
 def genkey(length, chunklen=6, linelen=78):
     """Generates a one time pad.
 
-    :length: length of the key in bytes
+    :length: minimum length of the key in bytes
     :returns: a string containing the base64 encoded key
     """
+    rem = length % 6
+    if rem:
+        length += 6 - rem
     nchunks = int(length // chunklen)
     rem = length % chunklen
     n = int(linelen//(4*chunklen/3))
@@ -34,13 +38,13 @@ def main(argv):
 
     Arguments:
     :argv: command line arguments
-    :returns: nothing 
+    :returns: nothing
     """
     if len(argv) == 1:
         script = os.path.basename(argv[0])
         print("Usage: {} [length filename]".format(script))
         sys.exit(0)
-    del argv[0] # delete the name of the script.
+    del argv[0]  # delete the name of the script.
     try:
         length = int(argv[0])
         if length < 0:

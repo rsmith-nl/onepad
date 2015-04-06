@@ -13,7 +13,8 @@
 import os
 import sys
 import base64
-import lzma
+import bz2
+
 
 def decode(data):
     """Decode a keystring or an encrypted string.
@@ -26,7 +27,7 @@ def decode(data):
 
 
 def encode(data, chunklen=6, linelen=78):
-    """Encode 
+    """Encode
 
     :data: string to be encoded
     :chunklen: number of bytes in a chunk, defaults to 6
@@ -46,16 +47,16 @@ def main(argv):
 
     Arguments:
     :argv: command line arguments
-    :returns: nothing 
+    :returns: nothing
     """
     if len(argv) == 1:
         script = os.path.basename(argv[0])
         print("Usage: {} (dec|enc) [datafile keyfile]".format(script))
         sys.exit(0)
-    del argv[0] # delete the name of the script.
+    del argv[0]  # delete the name of the script.
     try:
         action = argv[0]
-        if not action in ('enc', 'dec'):
+        if action not in ('enc', 'dec'):
             raise ValueError
         datafile = argv[1]
         keyfile = argv[2]
@@ -74,16 +75,16 @@ def main(argv):
         key = decode(kf.read())
     if action == 'dec':
         data = decode(data)
-    else: # encrypting
-        data = lzma.compress(data)
+    else:  # encrypting
+        data = bz2.compress(data)
     if len(data) > len(key):
         print('ERROR: Message longer than the key.')
         return
-    rv = bytes([i^j for i, j in zip(data, key)])
+    rv = bytes([i ^ j for i, j in zip(data, key)])
     if action == 'enc':
         rv = bytes(encode(rv), 'utf-8')
-    else: #decrypting
-        rv = lzma.decompress(rv)
+    else:  # decrypting
+        rv = bz2.decompress(rv)
     print(rv.decode('utf-8'))
 
 if __name__ == '__main__':
