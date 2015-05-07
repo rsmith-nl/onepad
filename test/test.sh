@@ -12,5 +12,7 @@
 diff -Bu plain.txt res.txt
 if [ $? -ne 0 ]; then
     echo "Test failed!"
+else
+    echo "Test succeeded!"
 fi
 rm -f enc.txt res.txt

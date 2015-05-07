@@ -17,22 +17,27 @@ import bz2
 
 
 def decode(data):
-    """Decode a keystring or an encrypted string.
+    """Decode a formatted base64 keystring or an encrypted string.
 
-    :data: bytes to decode
-    :returns: the decoded input
+    Arguments:
+        data: Bytes to decode.
+    Returns:
+        The decoded input.
     """
     data = data.replace(b' ', b'').replace(b'\n', b'')
     return base64.b64decode(data)
 
 
 def encode(data, chunklen=6, linelen=78):
-    """Encode
+    """Encode data with base64 and format it.
 
-    :data: string to be encoded
-    :chunklen: number of bytes in a chunk, defaults to 6
-    :linelen: length of a line, defaults to 78 characters
-    :returns: the base64 encoded data
+    Arguments:
+        data: String to be encoded.
+        chunklen: Number of bytes in a chunk, defaults to 6.
+        linelen: Length of a line, defaults to 78 characters.
+
+    Returns:
+        The base64 encoded data.
     """
     length = len(data)
     n = int(linelen//(4*chunklen/3))
@@ -46,8 +51,7 @@ def main(argv):
     """Main program.
 
     Arguments:
-    :argv: command line arguments
-    :returns: nothing
+        argv: command line arguments
     """
     if len(argv) == 1:
         script = os.path.basename(argv[0])
@@ -75,16 +79,18 @@ def main(argv):
         key = decode(kf.read())
     if action == 'dec':
         data = decode(data)
-    else:  # encrypting
-        data = bz2.compress(data)
+    else:
+        # Compress before encryption. The slice removes the bz2 header.
+        data = bz2.compress(data)[10:]
     if len(data) > len(key):
         print('ERROR: Message longer than the key.')
         return
     rv = bytes([i ^ j for i, j in zip(data, key)])
     if action == 'enc':
         rv = bytes(encode(rv), 'utf-8')
-    else:  # decrypting
-        rv = bz2.decompress(rv)
+    else:
+        # Decompress after decryption. Re-add bz2 header first.
+        rv = bz2.decompress(b'BZh91AY&SY' + rv)
     print(rv.decode('utf-8'))
 
 if __name__ == '__main__':
