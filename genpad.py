@@ -1,25 +1,75 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+# file: genpad.py
+# vim:fileencoding=utf-8:ft=python
 #
-# Author: R.F. Smith <rsmith@xs4all.nl>
-# $Date$
+# Copyright © 2015 R.F. Smith <rsmith@xs4all.nl>. All rights reserved.
+# Created: 2015-05-08 00:22:28 +0200
+# Last modified: 2015-05-17 01:22:06 +0200
 #
-# To the extent possible under law, Roland Smith has waived all copyright and
-# related or neighboring rights to genpad.py. This work is published from the
-# Netherlands. See http://creativecommons.org/publicdomain/zero/1.0/
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in the
+#    documentation and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY AUTHOR AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
+# OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+# OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN
+# NO EVENT SHALL AUTHOR OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+# OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+# LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+# NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+# EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""Generates a one time pad."""
+"""Generates a one time pad and writes it to a file in base64 encoded form."""
 
+import argparse
+import base64
+import logging
 import os
 import sys
-import base64
+
+
+def main(argv):
+    """
+    Entry point for genpad.
+
+    Arguments:
+        argv: command line arguments
+    """
+    logging.basicConfig(level='WARNING', format='%(levelname)s: %(message)s')
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('-l', '--length', type=int, metavar='K',
+                        default=10,
+                        help='length of the key in kB (default 10)')
+    parser.add_argument('filename', type=str,
+                        help='name of the key-file.')
+    args = parser.parse_args(argv)
+    if args.length < 0:
+        logging.error('Length must be a positive integer')
+    keystring = genkey(args.length*1024)
+    if not args.filename.endswith('.key'):
+        args.filename = args.filename + '.key'
+    with open(args.filename, 'w+') as kf:
+        kf.write(keystring)
 
 
 def genkey(length, chunklen=6, linelen=78):
-    """Generates a one time pad.
+    """
+    Generates a one time pad.
 
-    :length: minimum length of the key in bytes
-    :returns: a string containing the base64 encoded key
+    Arguments:
+        length: Minimum length of the key in bytes.
+        chuncklen: Length of the key segments (default 6 characters).
+        linelen: Length of the output lines (default 78 characters).
+
+    Returns:
+        A string containing the base64 encoded key.
     """
     rem = length % 6
     if rem:
@@ -33,37 +83,5 @@ def genkey(length, chunklen=6, linelen=78):
     return '\n'.join(lines)
 
 
-def main(argv):
-    """Main program.
-
-    Arguments:
-    :argv: command line arguments
-    :returns: nothing
-    """
-    if len(argv) == 1:
-        script = os.path.basename(argv[0])
-        print("Usage: {} [length filename]".format(script))
-        sys.exit(0)
-    del argv[0]  # delete the name of the script.
-    try:
-        length = int(argv[0])
-        if length < 0:
-            raise ValueError
-        filename = argv[1]
-        ext = '.key'
-        if not filename.endswith(ext):
-            filename += ext
-    except ValueError:
-        s = 'The argument "{}" is not a valid positive integer'
-        print(s.format(argv[0]))
-        return
-    except IndexError:
-        print('No filename given.')
-        return
-    keystring = genkey(length)
-    with open(filename, 'w+') as kf:
-        kf.write(keystring)
-
-
 if __name__ == '__main__':
-    main(sys.argv)
+    main(sys.argv[1:])
