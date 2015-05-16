@@ -1,26 +1,89 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+# file: onepad.py
+# vim:fileencoding=utf-8:ft=python
 #
-# Author: R.F. Smith <rsmith@xs4all.nl>
-# $Date$
+# Copyright © 2015 R.F. Smith <rsmith@xs4all.nl>. All rights reserved.
+# Created: 2015-05-17 01:24:48 +0200
+# Last modified: 2015-05-17 01:43:28 +0200
 #
-# To the extent possible under law, Roland Smith has waived all copyright and
-# related or neighboring rights to onepad.py. This work is published from the
-# Netherlands. See http://creativecommons.org/publicdomain/zero/1.0/
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in the
+#    documentation and/or other materials provided with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY AUTHOR AND CONTRIBUTORS "AS IS" AND ANY EXPRESS
+# OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+# OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN
+# NO EVENT SHALL AUTHOR OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+# OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+# LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+# NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+# EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 """Uses a one time pad to encrypt or decrypt a file."""
 
-import os
-import sys
+import argparse
 import base64
 import bz2
+import logging
+import os
+import sys
 
 
-def decode(data):
+def main(argv):
+    """
+    Entry point for onepad.
+
+    Arguments:
+        argv: command line arguments
+    """
+    logging.basicConfig(level='WARNING', format='%(levelname)s: %(message)s')
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('cmd', type=str, choices=['enc', 'dec'],
+                        help='action to perform')
+    parser.add_argument('datafile', type=str,
+                        help='name of the key-file.')
+    parser.add_argument('keyfile', type=str,
+                        help='name of the key-file.')
+    args = parser.parse_args(argv)
+    try:
+        with open(args.datafile, 'rb') as df:
+            data = df.read()
+        with open(args.keyfile, 'rb') as kf:
+            key = unwrap(kf.read())
+    except IOError as e:
+        logging.error('reading input files failed; {}'.format(e))
+        sys.exit(1)
+    if args.cmd == 'dec':
+        data = unwrap(data)
+    else:
+        # Compress *before* encryption.
+        # The slice removes the bz2 header which would otherwise be a crib.
+        data = bz2.compress(data)[10:]
+    if len(data) > len(key):
+        logging.error('message longer than the key.')
+        sys.exit(2)
+    rv = bytes([i ^ j for i, j in zip(data, key)])
+    if args.cmd == 'enc':
+        rv = bytes(encode(rv), 'utf-8')
+    else:
+        # Decompress after decryption. Re-add bz2 header first.
+        rv = bz2.decompress(b'BZh91AY&SY' + rv)
+    print(rv.decode('utf-8'))
+
+
+def unwrap(data):
     """Decode a formatted base64 keystring or an encrypted string.
 
     Arguments:
         data: Bytes to decode.
+
     Returns:
         The decoded input.
     """
@@ -47,51 +110,5 @@ def encode(data, chunklen=6, linelen=78):
     return '\n'.join(lines)
 
 
-def main(argv):
-    """Main program.
-
-    Arguments:
-        argv: command line arguments
-    """
-    if len(argv) == 1:
-        script = os.path.basename(argv[0])
-        print("Usage: {} (dec|enc) [datafile keyfile]".format(script))
-        sys.exit(0)
-    del argv[0]  # delete the name of the script.
-    try:
-        action = argv[0]
-        if action not in ('enc', 'dec'):
-            raise ValueError
-        datafile = argv[1]
-        keyfile = argv[2]
-        ext = '.key'
-        if not keyfile.endswith(ext):
-            keyfile += ext
-    except IndexError:
-        print('Not enough arguments given.')
-        return
-    except ValueError:
-        print('Command must be either "enc" or "dec".')
-        return
-    with open(datafile, 'rb') as df:
-        data = df.read()
-    with open(keyfile, 'rb') as kf:
-        key = decode(kf.read())
-    if action == 'dec':
-        data = decode(data)
-    else:
-        # Compress before encryption. The slice removes the bz2 header.
-        data = bz2.compress(data)[10:]
-    if len(data) > len(key):
-        print('ERROR: Message longer than the key.')
-        return
-    rv = bytes([i ^ j for i, j in zip(data, key)])
-    if action == 'enc':
-        rv = bytes(encode(rv), 'utf-8')
-    else:
-        # Decompress after decryption. Re-add bz2 header first.
-        rv = bz2.decompress(b'BZh91AY&SY' + rv)
-    print(rv.decode('utf-8'))
-
 if __name__ == '__main__':
-    main(sys.argv)
+    main(sys.argv[1:])
