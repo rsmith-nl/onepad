@@ -1,8 +1,10 @@
-======
 Onepad
-======
-:Author: Roland Smith
-:Date: 2015-05-17
+######
+
+:date: 2015-05-17
+:author: Roland Smith
+
+.. Last modified: 2015-05-17 18:03:34 +0200
 
 Introduction
 ============
@@ -12,16 +14,21 @@ a port and simplification of a previous version written in C.
 
 .. _one-time pads: http://en.wikipedia.org/wiki/One-time_pad
 
+
 How it works
 ============
 
-The onepad program reads a file and a key and then combines them using the
-exclusive-or operation. The resulting data is written to standard output.
+The ``onepad.py`` program reads a file and a key and then combines them using
+the exclusive-or operation. The resulting data is written to standard output.
 
-Key files and encrypted files are stored as base64 encoded text.
+Key files and encrypted files are stored as base64_ encoded text.
 
-Plaintext is compressed with BZ2 before encryption. Cyphertext is likewise
+Plaintext is compressed with bzip2_ before encryption. Ciphertext is likewise
 decompressed after decryption.
+
+.. _base64: http://en.wikipedia.org/wiki/Base64
+.. _bzip2: http://www.bzip.org/
+
 
 Security
 ========
@@ -54,7 +61,8 @@ overwriting them with zeroes after use.
 
 .. _running key cipher: http://en.wikipedia.org/wiki/Running_key_cipher
 
-Since the keys are as long as the message, transporting them securely is a
-problem. You could e.g. generate a lot of keys, burn them on a DVD and courier
-that to the recipient. But this is only secure if the keys aren't copied in
-transit. So in practice, using public key cryptography is much easier.
+Since the keys are as long as the message, transporting them securely is
+a problem. You could e.g. generate a lot of keys, burn them on a DVD and
+courier that to the recipient. But this is only secure if the keys aren't
+intercepted. So in practice, using public key cryptography is much
+easier.
