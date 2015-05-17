@@ -4,7 +4,7 @@
 #
 # Copyright © 2015 R.F. Smith <rsmith@xs4all.nl>. All rights reserved.
 # Created: 2015-05-08 00:22:28 +0200
-# Last modified: 2015-05-17 01:22:06 +0200
+# Last modified: 2015-05-17 11:38:13 +0200
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -34,6 +34,8 @@ import logging
 import os
 import sys
 
+__version__ = '0.9.0'
+
 
 def main(argv):
     """
@@ -44,6 +46,9 @@ def main(argv):
     """
     logging.basicConfig(level='WARNING', format='%(levelname)s: %(message)s')
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('-v', '--version',
+                        action='version',
+                        version=__version__)
     parser.add_argument('-l', '--length', type=int, metavar='K',
                         default=10,
                         help='length of the key in kB (default 10)')

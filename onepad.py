@@ -4,7 +4,7 @@
 #
 # Copyright © 2015 R.F. Smith <rsmith@xs4all.nl>. All rights reserved.
 # Created: 2015-05-17 01:24:48 +0200
-# Last modified: 2015-05-17 01:43:28 +0200
+# Last modified: 2015-05-17 11:37:02 +0200
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -35,6 +35,8 @@ import logging
 import os
 import sys
 
+__version__ = '0.9.0'
+
 
 def main(argv):
     """
@@ -45,6 +47,9 @@ def main(argv):
     """
     logging.basicConfig(level='WARNING', format='%(levelname)s: %(message)s')
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('-v', '--version',
+                        action='version',
+                        version=__version__)
     parser.add_argument('cmd', type=str, choices=['enc', 'dec'],
                         help='action to perform')
     parser.add_argument('datafile', type=str,

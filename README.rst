@@ -2,8 +2,7 @@
 Onepad
 ======
 :Author: Roland Smith
-:Date: $Date$
-:Revision: $Revision$
+:Date: 2015-05-17
 
 Introduction
 ============
@@ -17,8 +16,7 @@ How it works
 ============
 
 The onepad program reads a file and a key and then combines them using the
-exclusive-or (xor) operation. The resulting data is written to standard
-output.
+exclusive-or operation. The resulting data is written to standard output.
 
 Key files and encrypted files are stored as base64 encoded text.
 
@@ -39,18 +37,20 @@ In *practice* using e.g. public key cryptography is much more convenient and
 probably more secure.
 
 The ``genpad.py`` program gets the random data for the one-time pads from
-``os.urandom``.  So wether the keys are usable depends on the underlying
+``os.urandom``.  So whether the keys are usable depends on the underlying
 implementation. *If implemented correctly* operating systems gather randomness
 from unpredictable events like keystrokes, mouse movements and arriving
 network packets. This can be used to (re-)seed a cryptographically secure
-pseudorandom number generator. (CSPRNG_) But you should investigate the
+pseudo-random number generator. (CSPRNG_) But you should investigate the
 quality of the keys before trusting them!
+
+The tests now include a randomness test of a large key.
 
 .. _CSPRNG: http://en.wikipedia.org/wiki/Cryptographically_secure_pseudorandom_number_generator
 
 If a key is re-used, the one-time pad is transformed into a `running key
 cipher`_, which is *much less* secure. Keys should be destroyed by e.g.
-overwrtinging them with zeroes after use.
+overwriting them with zeroes after use.
 
 .. _running key cipher: http://en.wikipedia.org/wiki/Running_key_cipher
 
