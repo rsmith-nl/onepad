@@ -4,7 +4,7 @@
 #
 # Copyright © 2015 R.F. Smith <rsmith@xs4all.nl>. All rights reserved.
 # Created: 2015-05-17 01:24:48 +0200
-# Last modified: 2015-05-17 11:37:02 +0200
+# Last modified: 2016-04-23 10:36:31 +0200
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -32,7 +32,6 @@ import argparse
 import base64
 import bz2
 import logging
-import os
 import sys
 
 __version__ = '0.9.0'
@@ -92,7 +91,7 @@ def unwrap(data):
     Returns:
         The decoded input.
     """
-    data = data.replace(b' ', b'').replace(b'\n', b'')
+    data = bytes([b for b in data if b not in b' \r\n'])
     return base64.b64decode(data)
 
 
