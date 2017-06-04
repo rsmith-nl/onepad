@@ -45,15 +45,12 @@ def main(argv):
     """
     logging.basicConfig(level='WARNING', format='%(levelname)s: %(message)s')
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('-v', '--version',
-                        action='version',
-                        version=__version__)
-    parser.add_argument('cmd', type=str, choices=['enc', 'dec'],
-                        help='action to perform')
-    parser.add_argument('datafile', type=str,
-                        help='name of the key-file.')
-    parser.add_argument('keyfile', type=str,
-                        help='name of the key-file.')
+    parser.add_argument(
+        '-v', '--version', action='version', version=__version__)
+    parser.add_argument(
+        'cmd', type=str, choices=['enc', 'dec'], help='action to perform')
+    parser.add_argument('datafile', type=str, help='name of the key-file.')
+    parser.add_argument('keyfile', type=str, help='name of the key-file.')
     args = parser.parse_args(argv)
     try:
         with open(args.datafile, 'rb') as df:
@@ -108,10 +105,12 @@ def encode(data, chunklen=6, linelen=78):
         The base64 encoded data.
     """
     length = len(data)
-    n = int(linelen//(4*chunklen/3))
-    chunks = [base64.b64encode(data[j:j+chunklen]).decode('ascii')
-              for j in range(0, length, chunklen)]
-    lines = [' '.join(chunks[i:i+n]) for i in range(0, len(chunks), n)]
+    n = int(linelen // (4 * chunklen / 3))
+    chunks = [
+        base64.b64encode(data[j:j + chunklen]).decode('ascii')
+        for j in range(0, length, chunklen)
+    ]
+    lines = [' '.join(chunks[i:i + n]) for i in range(0, len(chunks), n)]
     return '\n'.join(lines)
 
 
