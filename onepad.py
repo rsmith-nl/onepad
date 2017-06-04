@@ -4,7 +4,7 @@
 #
 # Copyright © 2015 R.F. Smith <rsmith@xs4all.nl>. All rights reserved.
 # Created: 2015-05-17 01:24:48 +0200
-# Last modified: 2016-04-23 10:36:31 +0200
+# Last modified: 2017-06-04 15:51:27 +0200
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -25,8 +25,7 @@
 # LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-"""Uses a one time pad to encrypt or decrypt a file."""
+"""Use a one time pad to encrypt or decrypt a file."""
 
 import argparse
 import base64
@@ -83,7 +82,8 @@ def main(argv):
 
 
 def unwrap(data):
-    """Decode a formatted base64 keystring or an encrypted string.
+    """
+    Decode a formatted base64 keystring or an encrypted string.
 
     Arguments:
         data: Bytes to decode.
@@ -96,7 +96,8 @@ def unwrap(data):
 
 
 def encode(data, chunklen=6, linelen=78):
-    """Encode data with base64 and format it.
+    """
+    Encode data with base64 and format it.
 
     Arguments:
         data: String to be encoded.

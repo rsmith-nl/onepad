@@ -4,7 +4,7 @@
 #
 # Copyright © 2015 R.F. Smith <rsmith@xs4all.nl>. All rights reserved.
 # Created: 2015-05-08 00:22:28 +0200
-# Last modified: 2015-05-17 11:38:13 +0200
+# Last modified: 2017-06-04 15:51:52 +0200
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -25,8 +25,7 @@
 # LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-"""Generates a one time pad and writes it to a file in base64 encoded form."""
+"""Generate a one time pad and writes it to a file in base64 encoded form."""
 
 import argparse
 import base64
@@ -66,7 +65,7 @@ def main(argv):
 
 def genkey(length, chunklen=6, linelen=78):
     """
-    Generates a one time pad.
+    Generate a one time pad.
 
     Arguments:
         length: Minimum length of the key in bytes.
