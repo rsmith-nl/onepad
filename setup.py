@@ -25,7 +25,7 @@ if os.name is 'posix':
 
 name = 'onepad'
 setup(name=name,
-      version='0.9.0',
+      version='1.0',
       description='Program for one-time pad encryption',
       author='Roland Smith',
       author_email='rsmith@xs4all.nl',
