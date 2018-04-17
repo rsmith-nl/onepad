@@ -6,9 +6,6 @@
 # Created: 2012-08-25 23:37:50 +0200
 # Last modified: 2015-06-04 21:20:47 +0200
 #
-# To the extent possible under law, R.F. Smith has waived all copyright and
-# related or neighboring rights to ent.py. This work is published
-# from the Netherlands. See http://creativecommons.org/publicdomain/zero/1.0/
 
 """
 Partial implementation of the ‘ent’ program by John "Random" Walker in Python
