@@ -6,7 +6,6 @@
 # Created: 2012-08-25 23:37:50 +0200
 # Last modified: 2015-06-04 21:20:47 +0200
 #
-
 """
 Partial implementation of the ‘ent’ program by John "Random" Walker in Python
 using the numerical Python extension.
@@ -32,21 +31,19 @@ def main(argv):
         argv: Program options.
     """
     opts = argparse.ArgumentParser(prog='ent', description=__doc__)
-    opts.add_argument('-c', action='store_true',
-                      help="print occurrence counts (not implemented yet)")
-    opts.add_argument('-t', action='store_true',
-                      help="terse output in CSV format")
-    opts.add_argument('-v', '--version', action='version',
-                      version=__version__)
-    opts.add_argument("files", metavar='file', nargs='*',
-                      help="one or more files to process")
+    opts.add_argument(
+        '-c', action='store_true', help="print occurrence counts (not implemented yet)"
+    )
+    opts.add_argument('-t', action='store_true', help="terse output in CSV format")
+    opts.add_argument('-v', '--version', action='version', version=__version__)
+    opts.add_argument("files", metavar='file', nargs='*', help="one or more files to process")
     args = opts.parse_args(argv)
     for fname in args.files:
         data, cnts = readdata(fname)
         e = entropy(cnts)
         c = pearsonchisquare(cnts)
         p = pochisq(c)
-        d = math.fabs(p*100-50)
+        d = math.fabs(p * 100 - 50)
         try:
             scc = correlation(data)
             es = "{:.6f}".format(scc)
@@ -78,7 +75,7 @@ def textout(name, data, e, chi2, p, d, scc):
     outs = '- χ² distribution for {} samples is {:.2f}, and randomly'
     print(outs.format(len(data), chi2))
     outs = '  would exceed this value {:.2f} percent of the times.'
-    print(outs.format(p*100))
+    print(outs.format(p * 100))
     print("  According to the χ² test, this sequence", end=' ')
     if d > 49:
         print("is almost certainly not random")
@@ -88,8 +85,7 @@ def textout(name, data, e, chi2, p, d, scc):
         print("is close to random, but not perfect.")
     else:
         print("looks random.")
-    print("- Serial correlation coefficient is", scc,
-          '(totally uncorrelated = 0.0).')
+    print("- Serial correlation coefficient is", scc, '(totally uncorrelated = 0.0).')
 
 
 def readdata(name):
@@ -118,9 +114,9 @@ def entropy(counts):
     """
     counts = np.trim_zeros(np.sort(counts))
     sz = sum(counts)
-    p = counts/sz
-    ent = -sum(p * np.log(p)/math.log(256))
-    return ent*8
+    p = counts / sz
+    ent = -sum(p * np.log(p) / math.log(256))
+    return ent * 8
 
 
 def pearsonchisquare(counts):
@@ -135,8 +131,8 @@ def pearsonchisquare(counts):
     Returns:
         χ² value
     """
-    np = sum(counts)/256
-    return sum((counts - np)**2/np)
+    np = sum(counts) / 256
+    return sum((counts - np)**2 / np)
 
 
 def correlation(d):
@@ -152,9 +148,9 @@ def correlation(d):
     totalc = len(d)
     a = np.array(d, np.float64)
     b = np.roll(a, -1)
-    scct1 = np.sum(a*b)
+    scct1 = np.sum(a * b)
     scct2 = np.sum(a)**2
-    scct3 = np.sum(a*a)
+    scct3 = np.sum(a * a)
     scc = totalc * scct3 - scct2
     if scc == 0:
         raise ValueError
@@ -179,12 +175,12 @@ def poz(z):
     elif z < -3:
         return 0
     cnt = 10  # number of expansion elements to use.
-    exp = np.array([2*i+1 for i in range(0, cnt+1)])
-    za = np.ones(cnt+1)*z
+    exp = np.array([2 * i + 1 for i in range(0, cnt + 1)])
+    za = np.ones(cnt + 1) * z
     num = np.power(za, exp)
     denum = np.cumprod(exp)
-    fact = math.exp(-z*z/2)/math.sqrt(2*math.pi)
-    return 0.5+fact*np.sum(num/denum)
+    fact = math.exp(-z * z / 2) / math.sqrt(2 * math.pi)
+    return 0.5 + fact * np.sum(num / denum)
 
 
 def pochisq(x, df=255):
@@ -221,6 +217,7 @@ def pochisq(x, df=255):
     BIGX = 20.0
     a = 0.5 * x
     ev = df % 2 == 0
+
     # Helper functions.
 
     def even(t, f):
@@ -232,9 +229,10 @@ def pochisq(x, df=255):
         if x < -BIGX:
             return 0.0
         return math.exp(x)
+
     if df > 1:
         y = ex(-a)
-    s = even(y, 2.0*poz(-math.sqrt(x)))
+    s = even(y, 2.0 * poz(-math.sqrt(x)))
     if df > 2:
         x = 0.5 * (df - 1.0)
         z = even(1.0, 0.5)

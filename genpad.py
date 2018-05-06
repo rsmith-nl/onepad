@@ -45,15 +45,15 @@ def main(argv):
     """
     logging.basicConfig(level='WARNING', format='%(levelname)s: %(message)s')
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument(
-        '-v', '--version', action='version', version=__version__)
+    parser.add_argument('-v', '--version', action='version', version=__version__)
     parser.add_argument(
         '-l',
         '--length',
         type=int,
         metavar='K',
         default=10,
-        help='length of the key in kB (default 10)')
+        help='length of the key in kB (default 10)'
+    )
     parser.add_argument('filename', type=str, help='name of the key-file.')
     args = parser.parse_args(argv)
     if args.length < 0:

@@ -24,24 +24,22 @@ if os.name is 'posix':
     _scripts = outnames
 
 name = 'onepad'
-setup(name=name,
-      version='1.0',
-      description='Program for one-time pad encryption',
-      author='Roland Smith',
-      author_email='rsmith@xs4all.nl',
-      url='http://www.xs4all.nl/~rsmith/software/',
-      scripts=_scripts,
-      provides=[name],
-      classifiers=['Development Status :: 4 - Beta',
-                   'Environment :: Console',
-                   'Natural Language :: English',
-                   'License :: OSI Approved :: BSD License',
-                   'Operating System :: OS Independent',
-                   'Programming Language :: Python :: 3.4',
-                   'Topic :: Security :: Cryptography'
-                   ],
-      long_description=ld
-      )
+setup(
+    name=name,
+    version='1.0',
+    description='Program for one-time pad encryption',
+    author='Roland Smith',
+    author_email='rsmith@xs4all.nl',
+    url='http://www.xs4all.nl/~rsmith/software/',
+    scripts=_scripts,
+    provides=[name],
+    classifiers=[
+        'Development Status :: 4 - Beta', 'Environment :: Console', 'Natural Language :: English',
+        'License :: OSI Approved :: BSD License', 'Operating System :: OS Independent',
+        'Programming Language :: Python :: 3.4', 'Topic :: Security :: Cryptography'
+    ],
+    long_description=ld
+)
 
 if os.name is 'posix':
     for nm in outnames:
