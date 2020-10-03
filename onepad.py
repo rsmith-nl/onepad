@@ -33,7 +33,7 @@ import bz2
 import logging
 import sys
 
-__version__ = '1.0'
+__version__ = "2017.06.04"
 
 
 def main(argv):
