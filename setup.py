@@ -9,13 +9,13 @@
 from setuptools import setup
 import os
 
-with open('README.rst') as f:
+with open("README.rst") as f:
     ld = f.read()
 
 # Remove the extensions from the scripts for UNIX-like systems.
-_scripts = ['onepad.py', 'genpad.py']
+_scripts = ["onepad.py", "genpad.py"]
 outnames = [s[:-3] for s in _scripts]
-if os.name is 'posix':
+if os.name is "posix":
     try:
         for old, new in zip(_scripts, outnames):
             os.link(old, new)
@@ -23,24 +23,28 @@ if os.name is 'posix':
         pass
     _scripts = outnames
 
-name = 'onepad'
+name = "onepad"
 setup(
     name=name,
-    version='1.0',
-    description='Program for one-time pad encryption',
-    author='Roland Smith',
-    author_email='rsmith@xs4all.nl',
-    url='http://www.xs4all.nl/~rsmith/software/',
+    version="1.0",
+    description="Program for one-time pad encryption",
+    author="Roland Smith",
+    author_email="rsmith@xs4all.nl",
+    url="http://www.xs4all.nl/~rsmith/software/",
     scripts=_scripts,
     provides=[name],
     classifiers=[
-        'Development Status :: 4 - Beta', 'Environment :: Console', 'Natural Language :: English',
-        'License :: OSI Approved :: BSD License', 'Operating System :: OS Independent',
-        'Programming Language :: Python :: 3.4', 'Topic :: Security :: Cryptography'
+        "Development Status :: 4 - Beta",
+        "Environment :: Console",
+        "Natural Language :: English",
+        "License :: OSI Approved :: BSD License",
+        "Operating System :: OS Independent",
+        "Programming Language :: Python :: 3.4",
+        "Topic :: Security :: Cryptography",
     ],
-    long_description=ld
+    long_description=ld,
 )
 
-if os.name is 'posix':
+if os.name is "posix":
     for nm in outnames:
         os.remove(nm)

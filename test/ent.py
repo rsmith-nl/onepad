@@ -20,7 +20,7 @@ import math
 import sys
 import numpy as np
 
-__version__ = '0.5.0'
+__version__ = "0.5.0"
 
 
 def main(argv):
@@ -30,13 +30,15 @@ def main(argv):
     Arguments:
         argv: Program options.
     """
-    opts = argparse.ArgumentParser(prog='ent', description=__doc__)
+    opts = argparse.ArgumentParser(prog="ent", description=__doc__)
     opts.add_argument(
-        '-c', action='store_true', help="print occurrence counts (not implemented yet)"
+        "-c", action="store_true", help="print occurrence counts (not implemented yet)"
     )
-    opts.add_argument('-t', action='store_true', help="terse output in CSV format")
-    opts.add_argument('-v', '--version', action='version', version=__version__)
-    opts.add_argument("files", metavar='file', nargs='*', help="one or more files to process")
+    opts.add_argument("-t", action="store_true", help="terse output in CSV format")
+    opts.add_argument("-v", "--version", action="version", version=__version__)
+    opts.add_argument(
+        "files", metavar="file", nargs="*", help="one or more files to process"
+    )
     args = opts.parse_args(argv)
     for fname in args.files:
         data, cnts = readdata(fname)
@@ -48,7 +50,7 @@ def main(argv):
             scc = correlation(data)
             es = "{:.6f}".format(scc)
         except ValueError:
-            es = 'undefined'
+            es = "undefined"
         if args.t:
             terseout(fname, data, e, c, p, d, es)
         else:
@@ -59,8 +61,8 @@ def terseout(name, data, e, chi2, p, d, scc):
     """
     Print the results in terse CSV.
     """
-    print('0,File-name,File-bytes,Entropy,Chi-square,Mean,Serial-Correlation')
-    outs = '1,{},{},{:.6f},{:.2f},{:.4f},{}'
+    print("0,File-name,File-bytes,Entropy,Chi-square,Mean,Serial-Correlation")
+    outs = "1,{},{},{:.6f},{:.2f},{:.4f},{}"
     print(outs.format(name, len(data), e, chi2, data.mean(), scc))
 
 
@@ -69,14 +71,14 @@ def textout(name, data, e, chi2, p, d, scc):
     Print the results in plain text.
     """
     print('File "{}"'.format(name))
-    print('- Entropy is {:.6f} bits per byte.'.format(e))
-    outs = '- Arithmetic mean value of data bytes is {:.4f}'
-    print(outs.format(data.mean()), '(random = 127.5).')
-    outs = '- χ² distribution for {} samples is {:.2f}, and randomly'
+    print("- Entropy is {:.6f} bits per byte.".format(e))
+    outs = "- Arithmetic mean value of data bytes is {:.4f}"
+    print(outs.format(data.mean()), "(random = 127.5).")
+    outs = "- χ² distribution for {} samples is {:.2f}, and randomly"
     print(outs.format(len(data), chi2))
-    outs = '  would exceed this value {:.2f} percent of the times.'
+    outs = "  would exceed this value {:.2f} percent of the times."
     print(outs.format(p * 100))
-    print("  According to the χ² test, this sequence", end=' ')
+    print("  According to the χ² test, this sequence", end=" ")
     if d > 49:
         print("is almost certainly not random")
     elif d > 45:
@@ -85,7 +87,7 @@ def textout(name, data, e, chi2, p, d, scc):
         print("is close to random, but not perfect.")
     else:
         print("looks random.")
-    print("- Serial correlation coefficient is", scc, '(totally uncorrelated = 0.0).')
+    print("- Serial correlation coefficient is", scc, "(totally uncorrelated = 0.0).")
 
 
 def readdata(name):
@@ -132,7 +134,7 @@ def pearsonchisquare(counts):
         χ² value
     """
     np = sum(counts) / 256
-    return sum((counts - np)**2 / np)
+    return sum((counts - np) ** 2 / np)
 
 
 def correlation(d):
@@ -149,7 +151,7 @@ def correlation(d):
     a = np.array(d, np.float64)
     b = np.roll(a, -1)
     scct1 = np.sum(a * b)
-    scct2 = np.sum(a)**2
+    scct2 = np.sum(a) ** 2
     scct3 = np.sum(a * a)
     scc = totalc * scct3 - scct2
     if scc == 0:
@@ -208,7 +210,7 @@ def pochisq(x, df=255):
     """
     # Check arguments first
     if not isinstance(df, int):
-        raise ValueError('df must be an integer')
+        raise ValueError("df must be an integer")
     if x <= 0.0 or df < 1:
         return 1.0
     # Constants
@@ -256,5 +258,5 @@ def pochisq(x, df=255):
         return s
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main(sys.argv[1:])
