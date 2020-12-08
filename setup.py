@@ -1,50 +1,57 @@
+#!/usr/bin/env python
 # file: setup.py
-# vim:fileencoding=utf-8:ft=python
-# Installation script for onepad.
+# vim:fileencoding=utf-8:fdm=marker:ft=python
 #
-# Author: R.F. Smith <rsmith@xs4all.nl>
-# Created: 2015-05-17 01:44:59 +0200
-# Last modified: 2015-05-17 12:07:05 +0200
+# Copyright © 2020 R.F. Smith <rsmith@xs4all.nl>
+# Created: 2020-10-25T12:18:04+0100
+# Last modified: 2020-12-08T20:34:26+0100
+"""Script to install scripts for the local user."""
 
-from setuptools import setup
 import os
+import shutil
+import sys
+import sysconfig
 
-with open("README.rst") as f:
-    ld = f.read()
+# What to install
+scripts = [("genpad.py", ".py"), ("onepad.py", ".py")]
 
-# Remove the extensions from the scripts for UNIX-like systems.
-_scripts = ["onepad.py", "genpad.py"]
-outnames = [s[:-3] for s in _scripts]
-if os.name is "posix":
-    try:
-        for old, new in zip(_scripts, outnames):
-            os.link(old, new)
-    except OSError:
-        pass
-    _scripts = outnames
-
-name = "onepad"
-setup(
-    name=name,
-    version="1.0",
-    description="Program for one-time pad encryption",
-    author="Roland Smith",
-    author_email="rsmith@xs4all.nl",
-    url="http://www.xs4all.nl/~rsmith/software/",
-    scripts=_scripts,
-    provides=[name],
-    classifiers=[
-        "Development Status :: 4 - Beta",
-        "Environment :: Console",
-        "Natural Language :: English",
-        "License :: OSI Approved :: BSD License",
-        "Operating System :: OS Independent",
-        "Programming Language :: Python :: 3.4",
-        "Topic :: Security :: Cryptography",
-    ],
-    long_description=ld,
-)
-
-if os.name is "posix":
-    for nm in outnames:
-        os.remove(nm)
+# Preparation
+if os.name == "posix":
+    destdir = sysconfig.get_path("scripts", "posix_user")
+    destdir2 = ""
+elif os.name == "nt":
+    destdir = sysconfig.get_path("scripts", os.name)
+    destdir2 = sysconfig.get_path("scripts", os.name + "_user")
+else:
+    print(f"The system '{os.name}' is not recognized. Exiting")
+    sys.exit(1)
+install = "install" in [a.lower() for a in sys.argv]
+if install:
+    if not os.path.exists(destdir):
+        os.mkdir(destdir)
+else:
+    print("(Use the 'install' argument to actually install scripts.)")
+# Actual installation.
+for script, nt_ext in scripts:
+    base = os.path.splitext(script)[0]
+    if os.name == "posix":
+        destname = destdir + os.sep + base
+        destname2 = ""
+    elif os.name == "nt":
+        destname = destdir + os.sep + base + nt_ext
+        destname2 = destdir2 + os.sep + base + nt_ext
+    if install:
+        for d in (destname, destname2):
+            try:
+                shutil.copyfile(script, d)
+                print(f"* installed '{script}' as '{destname}'.")
+                os.chmod(d, 0o700)
+                break
+            except (OSError, PermissionError, FileNotFoundError):
+                pass  # Can't write to destination
+        else:
+            print(f"! installation of '{script}' has failed.")
+    else:
+        print(f"* '{script}' would be installed as '{destname}'")
+        if destname2:
+            print(f"  or '{destname2}'")
