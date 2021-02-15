@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # file: ent.py
 # vim:fileencoding=utf-8:ft=python
 #
