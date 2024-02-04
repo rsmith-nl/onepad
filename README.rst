@@ -4,7 +4,7 @@ Onepad
 :date: 2015-05-17
 :author: Roland Smith
 
-.. Last modified: 2015-05-17 18:03:34 +0200
+.. Last modified: 2024-02-05T00:40:20+0100
 
 Introduction
 ============
@@ -62,7 +62,7 @@ overwriting them with zeroes after use.
 .. _running key cipher: http://en.wikipedia.org/wiki/Running_key_cipher
 
 Since the keys are as long as the message, transporting them securely is
-a problem. You could e.g. generate a lot of keys, burn them on a DVD and
-courier that to the recipient. But this is only secure if the keys aren't
-intercepted. So in practice, using public key cryptography is much
+a problem. You could e.g. generate a lot of keys, put those on a storage
+device and courier that to the recipient. But this is only secure if the keys
+aren't intercepted. So in practice, using public key cryptography is much
 easier.
